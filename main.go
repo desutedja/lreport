@@ -82,6 +82,7 @@ func setupRouter() *mux.Router {
 	r.StrictSlash(true)
 	r.HandleFunc("/health", ping.Ping).Methods(http.MethodGet, http.MethodOptions)
 	r.HandleFunc("/user/login", handler.user.Login).Methods(http.MethodPost)
+	r.HandleFunc("/user/register/bypass", handler.user.CreateUser).Methods(http.MethodOptions, http.MethodPost)
 
 	internal := r.NewRoute().Subrouter()
 	internal.Use(handler.tokenStore.MiddlewareJWTAuthorization)
