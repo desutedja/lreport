@@ -13,6 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/desutedja/lreport/internal/config"
+	"github.com/desutedja/lreport/internal/handler/category"
 	"github.com/desutedja/lreport/internal/handler/ping"
 	"github.com/desutedja/lreport/pkg/database"
 	"github.com/desutedja/lreport/pkg/log"
@@ -23,8 +24,10 @@ import (
 
 	"github.com/desutedja/lreport/internal/handler/user"
 
+	categoryStore "github.com/desutedja/lreport/internal/repository/mysql/category"
 	userStore "github.com/desutedja/lreport/internal/repository/mysql/user"
 
+	categoryService "github.com/desutedja/lreport/internal/service/category"
 	userService "github.com/desutedja/lreport/internal/service/user"
 )
 
@@ -84,12 +87,16 @@ func setupRouter() *mux.Router {
 	internal.HandleFunc("/user/password/reset", handler.user.ResetPassword).Methods(http.MethodOptions, http.MethodPost)
 	internal.HandleFunc("/user/password/change", handler.user.ChangePassword).Methods(http.MethodOptions, http.MethodPut)
 
+	internal.HandleFunc("/category", handler.category.CreateCategory).Methods(http.MethodOptions, http.MethodPost)
+	internal.HandleFunc("/category", handler.category.GetCategory).Methods(http.MethodOptions, http.MethodGet)
+
 	return r
 }
 
 type handler struct {
 	user       *user.Handler
 	tokenStore *token.TokenGenerator
+	category   *category.Handler
 }
 
 func setupHandler() *handler {
@@ -113,8 +120,13 @@ func setupHandler() *handler {
 	userService := userService.NewService(userStore, tokenStore)
 	userHandler := user.NewHandler(userService)
 
+	categoryStore := categoryStore.NewCategoryStore(db)
+	categoryService := categoryService.NewService(categoryStore)
+	categoryHandler := category.NewHandler(categoryService)
+
 	return &handler{
 		user:       userHandler,
 		tokenStore: tokenStore,
+		category:   categoryHandler,
 	}
 }

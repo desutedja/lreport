@@ -1,0 +1,20 @@
+ CREATE TABLE transaction (
+    id CHAR(36) PRIMARY KEY,
+    user_id CHAR(36) NOT NULL,
+    category_id int NOT NULL,
+    regis int NOT NULL,
+    regis_depo int NOT NULL,
+    active_player int NOT NULl,
+    conv_dp decimal(10,2),
+    trans_dp int,
+    conv_tr decimal(10,2),
+    total_dp decimal(10,2),
+    total_wd decimal(10,2),
+    sub_total decimal(10,2),
+    wl decimal(10,2),
+    ats decimal(10,2),
+    total decimal(10,2),
+    created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_on TIMESTAMP,
+    update_by CHAR(36)
+);  
