@@ -15,6 +15,7 @@ import (
 	"github.com/desutedja/lreport/internal/config"
 	"github.com/desutedja/lreport/internal/handler/category"
 	"github.com/desutedja/lreport/internal/handler/ping"
+	"github.com/desutedja/lreport/internal/handler/transaction"
 	"github.com/desutedja/lreport/pkg/database"
 	"github.com/desutedja/lreport/pkg/log"
 	"github.com/desutedja/lreport/pkg/router"
@@ -25,9 +26,11 @@ import (
 	"github.com/desutedja/lreport/internal/handler/user"
 
 	categoryStore "github.com/desutedja/lreport/internal/repository/mysql/category"
+	transactionStore "github.com/desutedja/lreport/internal/repository/mysql/transaction"
 	userStore "github.com/desutedja/lreport/internal/repository/mysql/user"
 
 	categoryService "github.com/desutedja/lreport/internal/service/category"
+	transactionService "github.com/desutedja/lreport/internal/service/transaction"
 	userService "github.com/desutedja/lreport/internal/service/user"
 )
 
@@ -90,13 +93,17 @@ func setupRouter() *mux.Router {
 	internal.HandleFunc("/category", handler.category.CreateCategory).Methods(http.MethodOptions, http.MethodPost)
 	internal.HandleFunc("/category", handler.category.GetCategory).Methods(http.MethodOptions, http.MethodGet)
 
+	internal.HandleFunc("/transaction", handler.transaction.CreateTransaction).Methods(http.MethodOptions, http.MethodGet)
+	internal.HandleFunc("/transaction", handler.transaction.GetTransaction).Methods(http.MethodOptions, http.MethodGet)
+
 	return r
 }
 
 type handler struct {
-	user       *user.Handler
-	tokenStore *token.TokenGenerator
-	category   *category.Handler
+	user        *user.Handler
+	tokenStore  *token.TokenGenerator
+	category    *category.Handler
+	transaction *transaction.Handler
 }
 
 func setupHandler() *handler {
@@ -124,9 +131,14 @@ func setupHandler() *handler {
 	categoryService := categoryService.NewService(categoryStore)
 	categoryHandler := category.NewHandler(categoryService)
 
+	transactionStore := transactionStore.NewTransactionStore(db)
+	transactionService := transactionService.NewService(transactionStore)
+	transactionHandler := transaction.NewHandler(transactionService)
+
 	return &handler{
-		user:       userHandler,
-		tokenStore: tokenStore,
-		category:   categoryHandler,
+		user:        userHandler,
+		tokenStore:  tokenStore,
+		category:    categoryHandler,
+		transaction: transactionHandler,
 	}
 }
