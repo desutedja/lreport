@@ -104,6 +104,7 @@ func setupHandler() *handler {
 		DBName:   dbCfg.DBName,
 	})
 	if err != nil {
+		logrus.Errorf("host:%s;port:%d;user:%s;password:%s;dbname:%s", dbCfg.Host, dbCfg.Port, dbCfg.Username, dbCfg.Password, dbCfg.DBName)
 		logrus.Panic(err)
 	}
 

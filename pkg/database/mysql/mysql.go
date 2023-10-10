@@ -25,7 +25,7 @@ func Connect(ctx context.Context, cfg *database.Config) (*sql.DB, error) {
 	connString := cfg.User + ":" + cfg.Password + "@(" + cfg.Host + ")/" + cfg.DBName + "?" + connSetting
 	// connString := fmt.Sprintf("host=%s port=%d user=%s pasword=%s dbname=%s sslmode=disable",
 	// 	cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBName)
-
+	// log.Println(connString)
 	db, err := sql.Open("mysql", connString)
 	if err != nil {
 		return nil, err

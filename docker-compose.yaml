@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+  mysql:
+    image: mysql
+    container_name: mysqldb
+    environment:
+      MYSQL_ROOT_PASSWORD: dbpassword
+      MYSQL_DATABASE: lucky
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  app:
+    image: lreport/lreport:dev
+    container_name: api
+    ports:
+      - "1111:1111"
+    depends_on:
+      - mysql
+    environment:
+      DATABASE_URL: "mysql://root:dbpassword@mysql:3306/lucky"
+
+volumes:
+  mysql-data:
