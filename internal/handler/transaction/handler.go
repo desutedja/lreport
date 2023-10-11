@@ -3,6 +3,7 @@ package transaction
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -32,7 +33,7 @@ func NewHandler(transactionService transactionService) *Handler {
 
 func (h *Handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	tokenPayload := ctx.Value("userInfo").(token.TokenClaims)
+	tokenPayload := ctx.Value(model.CONTEXT_KEY).(token.TokenClaims)
 
 	body := model.ReqTransaction{}
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -141,6 +142,8 @@ func (h *Handler) GetTransaction(w http.ResponseWriter, r *http.Request) {
 		Page:   page,
 		Limit:  limit,
 	}
+
+	log.Println("kocak")
 
 	transactionData, err := h.transactionService.GetTransaction(ctx, body)
 	if err != nil {
