@@ -46,7 +46,7 @@ func (s *TransactionStore) CreateTransaction(ctx context.Context, req model.Data
 // date must be on this format (yyyy-mm-dd)
 func (s *TransactionStore) IsTransactionExist(ctx context.Context, date string) (bool, error) {
 	data := struct {
-		Id int
+		Id string
 	}{}
 
 	query := `
