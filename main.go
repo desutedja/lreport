@@ -123,7 +123,7 @@ func setupHandler() *handler {
 		logrus.Panic(err)
 	}
 
-	tokenStore := token.NewTokenGenerator("S4L7K3Y!", 600)
+	tokenStore := token.NewTokenGenerator("S4L7K3Y!", 3600)
 	userStore := userStore.NewUserStore(db)
 	userService := userService.NewService(userStore, tokenStore)
 	userHandler := user.NewHandler(userService)

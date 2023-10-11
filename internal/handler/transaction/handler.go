@@ -151,8 +151,14 @@ func (h *Handler) GetTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	testStruct := struct {
+		Items        interface{} `json:"items"`
+		TotalItems   int         `json:"total_page"`
+		FilteredPage int         `json:"filtered_page"`
+	}{}
+	testStruct.Items = transactionData
 	h.render.JSON(w, http.StatusOK, model.RespBody{
 		Message: "success",
-		Data:    transactionData,
+		Data:    testStruct,
 	})
 }
