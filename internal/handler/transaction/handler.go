@@ -3,7 +3,6 @@ package transaction
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -142,8 +141,6 @@ func (h *Handler) GetTransaction(w http.ResponseWriter, r *http.Request) {
 		Page:   page,
 		Limit:  limit,
 	}
-
-	log.Println("kocak")
 
 	transactionData, err := h.transactionService.GetTransaction(ctx, body)
 	if err != nil {

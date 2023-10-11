@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/desutedja/lreport/internal/repository/model"
+	"github.com/google/uuid"
 )
 
 type TransactionStore struct {
@@ -20,9 +21,9 @@ func NewTransactionStore(db *sql.DB) *TransactionStore {
 
 func (s *TransactionStore) CreateTransaction(ctx context.Context, req model.DataTransaction) error {
 	query := `
-		INSERT INTO transaction (user_id, category_id, regis, regis_dp, active_player, 
+		INSERT INTO transaction (id,user_id, category_id, regis, regis_dp, active_player, 
 			conv_dp, trans_dp, conv_tr, total_dp, total_wd, sub_total, wl, ats, total, trans_date)
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 	`
 
 	trx, err := s.db.BeginTx(ctx, nil)
@@ -31,7 +32,8 @@ func (s *TransactionStore) CreateTransaction(ctx context.Context, req model.Data
 		return err
 	}
 
-	_, err = trx.Exec(query, req.UserId, req.CategoryId, req.Regis, req.RegisDp, req.ActivePlayer,
+	id := uuid.New()
+	_, err = trx.Exec(query, id, req.UserId, req.CategoryId, req.Regis, req.RegisDp, req.ActivePlayer,
 		req.ConvDp, req.TransDp, req.ConvTr, req.TotalDp, req.TotalWd, req.SubTotal, req.Wl, req.Ats, req.Total, req.TransDate)
 	if err != nil {
 		return err
@@ -68,8 +70,7 @@ func (s *TransactionStore) GetTransaction(ctx context.Context, req model.BasicRe
 		SELECT 
 			id, user_id, category_id, regis, regis_dp, active_player, 
 			conv_dp, trans_dp, conv_tr, total_dp, total_wd, sub_total, wl, ats, total, trans_date
-		FROM transaction 
-		WHERE deleted=0
+		FROM transaction
 	`
 
 	query = query + " ORDER BY created_on DESC LIMIT ? OFFSET ?"
