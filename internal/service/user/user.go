@@ -35,11 +35,11 @@ func NewService(userStore userStore, tokenStore tokenStore) *Service {
 	}
 }
 
-func (s *Service) Login(ctx context.Context, username, password, device, ipAddress string) (token string, err error) {
+func (s *Service) Login(ctx context.Context, username, password, device, ipAddress string) (resp model.ResponseLogin, err error) {
 	// get password from db
 	user, err := s.userStore.Login(ctx, username)
 	if err != nil {
-		return "", errors.New("user not found")
+		return resp, errors.New("user not found")
 	}
 
 	// compare password to db password
@@ -48,16 +48,16 @@ func (s *Service) Login(ctx context.Context, username, password, device, ipAddre
 	if err != nil {
 		// authentication failed
 		log.Println("error validate password: ", err)
-		return "", errors.New("wrong password")
+		return resp, errors.New("wrong password")
 	}
 
 	// authentication successful
 	// generate token if password is valid
 	timeNow := time.Now()
-	token, err = s.tokenStore.GenerateToken(user.Id, user.UserLevel, timeNow)
+	token, err := s.tokenStore.GenerateToken(user.Id, user.UserLevel, timeNow)
 	if err != nil {
 		log.Println("error generate token: ", err)
-		return "", err
+		return resp, err
 	}
 
 	// insert log when success
@@ -66,6 +66,14 @@ func (s *Service) Login(ctx context.Context, username, password, device, ipAddre
 	if err != nil {
 		// log info
 		log.Println("error user login history: ", err)
+	}
+
+	resp = model.ResponseLogin{
+		Id:        user.Id,
+		Username:  username,
+		UserLevel: user.UserLevel,
+		Session:   3600, // second
+		Token:     token,
 	}
 
 	return

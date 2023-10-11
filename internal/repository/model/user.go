@@ -22,3 +22,11 @@ type BasicRequest struct {
 	Page   int
 	Limit  int
 }
+
+type ResponseLogin struct {
+	Id        string `json:"id"`
+	Username  string `json:"username"`
+	UserLevel string `json:"user_level"`
+	Session   int    `json:"session"`
+	Token     string `json:"token"`
+}

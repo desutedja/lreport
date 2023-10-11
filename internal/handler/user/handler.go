@@ -16,7 +16,7 @@ import (
 
 type userService interface {
 	CreateUser(ctx context.Context, username, password, userLevel string) (uuid.UUID, error)
-	Login(ctx context.Context, username, password, device, ipAddress string) (token string, err error)
+	Login(ctx context.Context, username, password, device, ipAddress string) (resp model.ResponseLogin, err error)
 	ResetPassword(ctx context.Context, username, newPassword string) error
 	ChangePassword(ctx context.Context, username, oldPassword, newPassword string) error
 	GetLoginHistory(ctx context.Context, req model.BasicRequest) (data []model.LoginHistory, err error)
