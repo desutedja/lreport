@@ -137,7 +137,7 @@ func (s *UserStore) LoginHistory(ctx context.Context, req model.BasicRequest) (d
 	`
 
 	if req.Search != "" {
-		query = query + fmt.Sprintf(" WHERE user_id like %%%s%% ", req.Search)
+		query = query + fmt.Sprintf(" WHERE user_id like '%%%s%%' ", req.Search)
 	}
 
 	query = query + " ORDER BY created_on DESC LIMIT ? OFFSET ?"
@@ -180,7 +180,7 @@ func (s *UserStore) UserList(ctx context.Context, req model.BasicRequest) (data 
 	`
 
 	if req.Search != "" {
-		query = query + fmt.Sprintf(" WHERE username like %%%s%% ", req.Search)
+		query = query + fmt.Sprintf(" WHERE username like '%%%s%%' ", req.Search)
 	}
 
 	query = query + " ORDER BY created_on DESC LIMIT ? OFFSET ?"
