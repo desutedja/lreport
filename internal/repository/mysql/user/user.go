@@ -171,28 +171,44 @@ func (s *UserStore) LoginHistory(ctx context.Context, req model.BasicRequest) (d
 
 }
 
-// func (s *UserStore) GetUUID(trx *sql.Tx, tablename string) (idNew uuid.UUID, err error) {
-// 	dt := struct {
-// 		ttl int
-// 	}{}
+func (s *UserStore) UserList(ctx context.Context, req model.BasicRequest) (data []model.UserListData, err error) {
+	offset := (req.Page * req.Limit) - req.Limit
 
-// 	for {
-// 		id := uuid.New()
+	query := `
+		SELECT id,username,user_level,created_on
+		FROM users
+	`
 
-// 		query := fmt.Sprintf("SELECT COUNT(*) ttl FROM %s WHERE id=?", tablename)
-// 		if err := trx.QueryRow(query, id).Scan(
-// 			&dt.ttl,
-// 		); err != nil {
-// 			log.Println("error query get UUID: ", err)
-// 			break
-// 		}
+	if req.Search != "" {
+		query = query + fmt.Sprintf(" WHERE username like %%%s%% ", req.Search)
+	}
 
-// 		if dt.ttl == 0 {
-// 			idNew = id
-// 			err = nil
-// 			break
-// 		}
-// 	}
+	query = query + " ORDER BY created_on DESC LIMIT ? OFFSET ?"
 
-// 	return
-// }
+	log.Println(query, "\nOFFSET: ", offset, "\nlimit", req.Limit)
+
+	rows, err := s.db.QueryContext(ctx, query, req.Limit, offset)
+	if err != nil {
+		log.Println("error query: ", err)
+		return data, err
+	}
+
+	for rows.Next() {
+
+		dt := model.UserListData{}
+
+		if err := rows.Scan(
+			&dt.Id,
+			&dt.Username,
+			&dt.UserLevel,
+			&dt.CreatedOn,
+		); err != nil {
+			log.Println("error scan: ", err)
+			return data, err
+		}
+
+		data = append(data, dt)
+	}
+
+	return data, nil
+}

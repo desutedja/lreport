@@ -86,6 +86,7 @@ func setupRouter() *mux.Router {
 
 	internal := r.NewRoute().Subrouter()
 	internal.Use(handler.tokenStore.MiddlewareJWTAuthorization)
+	internal.HandleFunc("/user", handler.user.UserList).Methods(http.MethodOptions, http.MethodGet)
 	internal.HandleFunc("/user/login/history", handler.user.LoginHistory).Methods(http.MethodOptions, http.MethodGet)
 	internal.HandleFunc("/user/register", handler.user.CreateUser).Methods(http.MethodOptions, http.MethodPost)
 	internal.HandleFunc("/user/password/reset", handler.user.ResetPassword).Methods(http.MethodOptions, http.MethodPost)

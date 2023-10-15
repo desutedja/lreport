@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -20,6 +21,7 @@ type userService interface {
 	ResetPassword(ctx context.Context, username, newPassword string) error
 	ChangePassword(ctx context.Context, username, oldPassword, newPassword string) error
 	GetLoginHistory(ctx context.Context, req model.BasicRequest) (data []model.LoginHistory, err error)
+	GetUserList(ctx context.Context, req model.BasicRequest) (data []model.UserListData, err error)
 }
 
 type Handler struct {
@@ -250,5 +252,52 @@ func (h *Handler) LoginHistory(w http.ResponseWriter, r *http.Request) {
 	h.render.JSON(w, http.StatusOK, model.RespBody{
 		Message: "success",
 		Data:    loginHistory,
+	})
+}
+
+func (h *Handler) UserList(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	param := r.URL.Query()
+	page, _ := strconv.Atoi(param.Get("page"))
+	limit, _ := strconv.Atoi(param.Get("limit"))
+	search := param.Get("search")
+
+	// validate request
+	if page == 0 {
+		h.render.JSON(w, http.StatusBadRequest, "page is required")
+		return
+	}
+
+	if limit == 0 {
+		h.render.JSON(w, http.StatusBadRequest, "limit is required")
+		return
+	}
+
+	body := model.BasicRequest{
+		Search: search,
+		Page:   page,
+		Limit:  limit,
+	}
+
+	userList, err := h.userService.GetUserList(ctx, body)
+	if err != nil {
+		h.render.JSON(w, http.StatusInternalServerError, model.RespBody{
+			Message: "failed",
+			Data:    err.Error(),
+		})
+		return
+	}
+
+	filteredPage := math.Ceil(float64(len(userList)) / float64(body.Limit))
+
+	resp := model.RespListstruct{
+		Items:        userList,
+		TotalItems:   len(userList),
+		FilteredPage: int(filteredPage),
+	}
+
+	h.render.JSON(w, http.StatusOK, model.RespBody{
+		Message: "success",
+		Data:    resp,
 	})
 }

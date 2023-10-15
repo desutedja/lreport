@@ -9,6 +9,13 @@ type UserData struct {
 	UserLevel string `json:"user_level"`
 }
 
+type UserListData struct {
+	Id        string `json:"id"`
+	Username  string `json:"username"`
+	UserLevel string `json:"user_level"`
+	CreatedOn string `json:"created_on"`
+}
+
 type LoginHistory struct {
 	Id        string    `json:"id"`
 	UserId    string    `json:"user_id"`

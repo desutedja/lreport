@@ -14,3 +14,9 @@ type RespBody struct {
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
 }
+
+type RespListstruct struct {
+	Items        interface{} `json:"items"`
+	TotalItems   int         `json:"total_page"`
+	FilteredPage int         `json:"filtered_page"`
+}

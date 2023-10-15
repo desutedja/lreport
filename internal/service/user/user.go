@@ -17,6 +17,7 @@ type userStore interface {
 	CreateUser(ctx context.Context, username, password, userLevel string) (uuid.UUID, error)
 	ChangePassword(ctx context.Context, userID, newPassword string) error
 	LoginHistory(ctx context.Context, req model.BasicRequest) (data []model.LoginHistory, err error)
+	UserList(ctx context.Context, req model.BasicRequest) (data []model.UserListData, err error)
 }
 
 type tokenStore interface {
@@ -172,6 +173,16 @@ func (s *Service) ResetPassword(ctx context.Context, username, newPassword strin
 func (s *Service) GetLoginHistory(ctx context.Context, req model.BasicRequest) (data []model.LoginHistory, err error) {
 	// get password from db
 	data, err = s.userStore.LoginHistory(ctx, req)
+	if err != nil {
+		return data, errors.New("data not found")
+	}
+
+	return data, nil
+}
+
+func (s *Service) GetUserList(ctx context.Context, req model.BasicRequest) (data []model.UserListData, err error) {
+	// get password from db
+	data, err = s.userStore.UserList(ctx, req)
 	if err != nil {
 		return data, errors.New("data not found")
 	}
