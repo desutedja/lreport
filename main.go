@@ -13,6 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/desutedja/lreport/internal/config"
+	"github.com/desutedja/lreport/internal/handler/bonus"
 	"github.com/desutedja/lreport/internal/handler/category"
 	"github.com/desutedja/lreport/internal/handler/ping"
 	"github.com/desutedja/lreport/internal/handler/transaction"
@@ -25,10 +26,12 @@ import (
 
 	"github.com/desutedja/lreport/internal/handler/user"
 
+	bonusStore "github.com/desutedja/lreport/internal/repository/mysql/bonus"
 	categoryStore "github.com/desutedja/lreport/internal/repository/mysql/category"
 	transactionStore "github.com/desutedja/lreport/internal/repository/mysql/transaction"
 	userStore "github.com/desutedja/lreport/internal/repository/mysql/user"
 
+	bonusService "github.com/desutedja/lreport/internal/service/bonus"
 	categoryService "github.com/desutedja/lreport/internal/service/category"
 	transactionService "github.com/desutedja/lreport/internal/service/transaction"
 	userService "github.com/desutedja/lreport/internal/service/user"
@@ -98,6 +101,9 @@ func setupRouter() *mux.Router {
 	internal.HandleFunc("/transaction", handler.transaction.CreateTransaction).Methods(http.MethodOptions, http.MethodPost)
 	internal.HandleFunc("/transaction", handler.transaction.GetTransaction).Methods(http.MethodOptions, http.MethodGet)
 
+	internal.HandleFunc("/bonus", handler.bonus.CreateBonus).Methods(http.MethodOptions, http.MethodPost)
+	internal.HandleFunc("/bonus", handler.bonus.GetBonus).Methods(http.MethodOptions, http.MethodGet)
+
 	return r
 }
 
@@ -106,6 +112,7 @@ type handler struct {
 	tokenStore  *token.TokenGenerator
 	category    *category.Handler
 	transaction *transaction.Handler
+	bonus       *bonus.Handler
 }
 
 func setupHandler() *handler {
@@ -137,10 +144,15 @@ func setupHandler() *handler {
 	transactionService := transactionService.NewService(transactionStore)
 	transactionHandler := transaction.NewHandler(transactionService)
 
+	bonusStore := bonusStore.NewBonusStore(db)
+	bonusService := bonusService.NewService(bonusStore)
+	bonusHandler := bonus.NewHandler(bonusService)
+
 	return &handler{
 		user:        userHandler,
 		tokenStore:  tokenStore,
 		category:    categoryHandler,
 		transaction: transactionHandler,
+		bonus:       bonusHandler,
 	}
 }

@@ -30,7 +30,7 @@ func NewHandler(bonusService bonusService) *Handler {
 	}
 }
 
-func (h *Handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateBonus(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	tokenPayload := ctx.Value(model.CONTEXT_KEY).(token.TokenClaims)
 
@@ -78,7 +78,7 @@ func (h *Handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *Handler) GetTransaction(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetBonus(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	param := r.URL.Query()
 	page, _ := strconv.Atoi(param.Get("page"))

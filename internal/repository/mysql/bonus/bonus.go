@@ -86,7 +86,7 @@ func (s *BonusStore) GetBonus(ctx context.Context, req model.BasicRequest) (data
 		dt := model.DataBonus{}
 
 		if err := rows.Scan(
-			&dt.Id, &dt.UserId, dt.Username, &dt.CategoryId, &dt.CategoryName, &dt.NewMember, &dt.CbSl, &dt.RbSl,
+			&dt.Id, &dt.UserId, &dt.Username, &dt.CategoryId, &dt.CategoryName, &dt.NewMember, &dt.CbSl, &dt.RbSl,
 			&dt.CbCa, &dt.RollCa, &dt.CbSp, &dt.RbSp, &dt.Refferal, &dt.Promo, &dt.Total, &dt.TransDate,
 		); err != nil {
 			log.Println("error scan: ", err)
