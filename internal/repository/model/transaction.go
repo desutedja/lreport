@@ -2,7 +2,7 @@ package model
 
 type DataTransaction struct {
 	Id           string `json:"id"`
-	CategoryName int    `json:"category_name"`
+	CategoryName string `json:"category_name"`
 	ReqTransaction
 	UserId    string  `json:"user_id"`
 	Username  string  `json:"username"`
@@ -10,6 +10,7 @@ type DataTransaction struct {
 	ConvTr    float64 `json:"conv_tr"`
 	SubTotal  float64 `json:"sub_total"`
 	Ats       float64 `json:"ats"`
+	Bonus     float64 `json:"bonus"`
 	Total     float64 `json:"total"`
 	CreatedOn string  `json:"created_on"`
 }

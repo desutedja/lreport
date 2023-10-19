@@ -69,12 +69,16 @@ func (s *TransactionStore) GetTransaction(ctx context.Context, req model.BasicRe
 
 	query := `
 		SELECT 
-			id, user_id, category_id, regis, regis_dp, active_player, 
-			conv_dp, trans_dp, trans_wd, conv_tr, total_dp, total_wd, sub_total, wl, ats, total, trans_date
-		FROM transaction
+			tr.id, tr.user_id, u.username, tr.category_id, c.name, tr.regis, tr.regis_dp, tr.active_player, 
+			tr.conv_dp, tr.trans_dp, tr.trans_wd, tr.conv_tr, tr.total_dp, tr.total_wd, tr.sub_total, tr.wl, tr.ats,
+			IFNULL(bn.total,0) bonus, (tr.total - IFNULL(bn.total,0)) total, tr.trans_date
+		FROM transaction tr
+		INNER JOIN users u ON tr.user_id = u.id
+		INNER JOIN category c ON tr.category_id = c.id
+		LEFT JOIN bonus bn ON tr.category_id = bn.category_id AND tr.trans_date = bn.trans_date
 	`
 
-	query = query + " ORDER BY created_on DESC LIMIT ? OFFSET ?"
+	query = query + " ORDER BY tr.created_on DESC LIMIT ? OFFSET ?"
 
 	rows, err := s.db.QueryContext(ctx, query, req.Limit, offset)
 	if err != nil {
@@ -87,8 +91,9 @@ func (s *TransactionStore) GetTransaction(ctx context.Context, req model.BasicRe
 		dt := model.DataTransaction{}
 
 		if err := rows.Scan(
-			&dt.Id, &dt.UserId, &dt.CategoryId, &dt.Regis, &dt.RegisDp, &dt.ActivePlayer,
-			&dt.ConvDp, &dt.TransDp, &dt.TransWd, &dt.ConvTr, &dt.TotalDp, &dt.TotalWd, &dt.SubTotal, &dt.Wl, &dt.Ats, &dt.Total, &dt.TransDate,
+			&dt.Id, &dt.UserId, &dt.Username, &dt.CategoryId, &dt.CategoryName, &dt.Regis, &dt.RegisDp, &dt.ActivePlayer,
+			&dt.ConvDp, &dt.TransDp, &dt.TransWd, &dt.ConvTr, &dt.TotalDp, &dt.TotalWd, &dt.SubTotal, &dt.Wl, &dt.Ats,
+			&dt.Bonus, &dt.Total, &dt.TransDate,
 		); err != nil {
 			log.Println("error scan: ", err)
 			return data, err

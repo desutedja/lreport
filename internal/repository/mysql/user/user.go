@@ -132,15 +132,16 @@ func (s *UserStore) LoginHistory(ctx context.Context, req model.BasicRequest) (d
 	offset := (req.Page * req.Limit) - req.Limit
 
 	query := `
-		SELECT user_id,device,ip_address,created_on
-		FROM login_history
+		SELECT lh.id, lh.user_id,u.username,lh.device,lh.ip_address,lh.created_on
+		FROM login_history lh
+		INNER JOIN users u ON lh.user_id = u.id
 	`
 
 	if req.Search != "" {
-		query = query + fmt.Sprintf(" WHERE user_id like '%%%s%%' ", req.Search)
+		query = query + fmt.Sprintf(" WHERE u.username like '%%%s%%' ", req.Search)
 	}
 
-	query = query + " ORDER BY created_on DESC LIMIT ? OFFSET ?"
+	query = query + " ORDER BY lh.created_on DESC LIMIT ? OFFSET ?"
 
 	log.Println(query, "\nOFFSET: ", offset, "\nlimit", req.Limit)
 
@@ -155,7 +156,9 @@ func (s *UserStore) LoginHistory(ctx context.Context, req model.BasicRequest) (d
 		dt := model.LoginHistory{}
 
 		if err := rows.Scan(
+			&dt.Id,
 			&dt.UserId,
+			&dt.Username,
 			&dt.Device,
 			&dt.IpAddress,
 			&dt.CreatedOn,

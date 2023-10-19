@@ -19,6 +19,7 @@ type UserListData struct {
 type LoginHistory struct {
 	Id        string    `json:"id"`
 	UserId    string    `json:"user_id"`
+	Username  string    `json:"username"`
 	Device    string    `json:"device"`
 	IpAddress string    `json:"ip_address"`
 	CreatedOn time.Time `json:"created_on"`
