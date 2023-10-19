@@ -15,6 +15,7 @@ import (
 type transactionService interface {
 	CreateTransaction(ctx context.Context, userId string, req model.ReqTransaction) error
 	GetTransaction(ctx context.Context, req model.BasicRequest) (data []model.DataTransaction, err error)
+	GetTransactionStatistic(ctx context.Context, categoryId int) (data model.RespReportTransaction, err error)
 }
 
 type Handler struct {
@@ -160,5 +161,31 @@ func (h *Handler) GetTransaction(w http.ResponseWriter, r *http.Request) {
 	h.render.JSON(w, http.StatusOK, model.RespBody{
 		Message: "success",
 		Data:    testStruct,
+	})
+}
+
+func (h *Handler) GetTransactionStatistic(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	param := r.URL.Query()
+	categoryId, _ := strconv.Atoi(param.Get("category_id"))
+
+	// validate request
+	if categoryId == 0 {
+		h.render.JSON(w, http.StatusBadRequest, "category Id is required")
+		return
+	}
+
+	reportData, err := h.transactionService.GetTransactionStatistic(ctx, categoryId)
+	if err != nil {
+		h.render.JSON(w, http.StatusInternalServerError, model.RespBody{
+			Message: "failed",
+			Data:    err.Error(),
+		})
+		return
+	}
+
+	h.render.JSON(w, http.StatusOK, model.RespBody{
+		Message: "success",
+		Data:    reportData,
 	})
 }

@@ -100,6 +100,7 @@ func setupRouter() *mux.Router {
 
 	internal.HandleFunc("/transaction", handler.transaction.CreateTransaction).Methods(http.MethodOptions, http.MethodPost)
 	internal.HandleFunc("/transaction", handler.transaction.GetTransaction).Methods(http.MethodOptions, http.MethodGet)
+	internal.HandleFunc("/transaction/statistic", handler.transaction.GetTransactionStatistic).Methods(http.MethodOptions, http.MethodGet)
 
 	internal.HandleFunc("/bonus", handler.bonus.CreateBonus).Methods(http.MethodOptions, http.MethodPost)
 	internal.HandleFunc("/bonus", handler.bonus.GetBonus).Methods(http.MethodOptions, http.MethodGet)

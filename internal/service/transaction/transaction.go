@@ -11,6 +11,7 @@ type transactionStore interface {
 	CreateTransaction(ctx context.Context, req model.DataTransaction) error
 	IsTransactionExist(ctx context.Context, date string) (bool, error)
 	GetTransaction(ctx context.Context, req model.BasicRequest) (data []model.DataTransaction, err error)
+	GetTransactionStatistic(ctx context.Context, categoryId int) (data model.RespReportTransaction, err error)
 }
 
 type Service struct {
@@ -55,6 +56,16 @@ func (s *Service) CreateTransaction(ctx context.Context, userId string, req mode
 func (s *Service) GetTransaction(ctx context.Context, req model.BasicRequest) (data []model.DataTransaction, err error) {
 	// get category from db
 	data, err = s.transactionStore.GetTransaction(ctx, req)
+	if err != nil {
+		return data, errors.New("data not found")
+	}
+
+	return data, nil
+}
+
+func (s *Service) GetTransactionStatistic(ctx context.Context, categoryId int) (data model.RespReportTransaction, err error) {
+	// get category from db
+	data, err = s.transactionStore.GetTransactionStatistic(ctx, categoryId)
 	if err != nil {
 		return data, errors.New("data not found")
 	}
