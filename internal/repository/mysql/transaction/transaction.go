@@ -120,6 +120,8 @@ func (s *TransactionStore) GetTransactionStatistic(ctx context.Context, category
 
 	query = query + " ORDER BY tr.created_on DESC LIMIT 30"
 
+	query = `SELECT * FROM (` + query + `) tbl ORDER BY period ASC`
+
 	rows, err := s.db.QueryContext(ctx, query, categoryId)
 	if err != nil {
 		log.Println("error query: ", err)
