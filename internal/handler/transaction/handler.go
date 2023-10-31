@@ -15,7 +15,7 @@ import (
 type transactionService interface {
 	CreateTransaction(ctx context.Context, userId string, req model.ReqTransaction) error
 	GetTransaction(ctx context.Context, req model.BasicRequest) (data []model.DataTransaction, err error)
-	GetTransactionStatistic(ctx context.Context, categoryId int) (data model.RespReportTransaction, err error)
+	GetTransactionStatistic(ctx context.Context, categoryId, year, month int) (resp model.RespReportTransactionAvg, err error)
 }
 
 type Handler struct {
@@ -168,6 +168,8 @@ func (h *Handler) GetTransactionStatistic(w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 	param := r.URL.Query()
 	categoryId, _ := strconv.Atoi(param.Get("category_id"))
+	year, _ := strconv.Atoi(param.Get("year"))
+	month, _ := strconv.Atoi(param.Get("month"))
 
 	// validate request
 	if categoryId == 0 {
@@ -175,7 +177,21 @@ func (h *Handler) GetTransactionStatistic(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	reportData, err := h.transactionService.GetTransactionStatistic(ctx, categoryId)
+	// init the loc
+	loc, _ := time.LoadLocation("Asia/Jakarta")
+
+	// set timezone,
+	now := time.Now().In(loc)
+
+	if year == 0 {
+		year = now.Year()
+	}
+
+	if month == 0 {
+		month = int(now.Month())
+	}
+
+	reportData, err := h.transactionService.GetTransactionStatistic(ctx, categoryId, year, month)
 	if err != nil {
 		h.render.JSON(w, http.StatusInternalServerError, model.RespBody{
 			Message: "failed",

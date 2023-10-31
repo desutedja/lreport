@@ -3,6 +3,7 @@ package transaction
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/desutedja/lreport/internal/repository/model"
 )
@@ -11,7 +12,7 @@ type transactionStore interface {
 	CreateTransaction(ctx context.Context, req model.DataTransaction) error
 	IsTransactionExist(ctx context.Context, date string) (bool, error)
 	GetTransaction(ctx context.Context, req model.BasicRequest) (data []model.DataTransaction, err error)
-	GetTransactionStatistic(ctx context.Context, categoryId int) (data model.RespReportTransaction, err error)
+	GetTransactionStatistic(ctx context.Context, categoryId, year, month int) (data model.RespReportTransaction, err error)
 }
 
 type Service struct {
@@ -63,12 +64,86 @@ func (s *Service) GetTransaction(ctx context.Context, req model.BasicRequest) (d
 	return data, nil
 }
 
-func (s *Service) GetTransactionStatistic(ctx context.Context, categoryId int) (data model.RespReportTransaction, err error) {
+func (s *Service) GetTransactionStatistic(ctx context.Context, categoryId, year, month int) (resp model.RespReportTransactionAvg, err error) {
 	// get category from db
-	data, err = s.transactionStore.GetTransactionStatistic(ctx, categoryId)
+	data, err := s.transactionStore.GetTransactionStatistic(ctx, categoryId, year, month)
 	if err != nil {
-		return data, errors.New("data not found")
+		return resp, errors.New("data not found")
 	}
 
-	return data, nil
+	// Initialize the data for averaging
+	avgData := []model.AverageDataReportTransaction{}
+	divider := 6.0 // Initial divider value
+
+	week := []string{
+		"1st", "2nd", "3rd", "4th", "5th",
+	}
+
+	// Process data in 5-week sections
+	for i := 0; i < 5; i++ {
+		// Extract the current 6-week section
+		startIndex := i * 6
+		endIndex := (i + 1) * 6
+		sectionData := data.DataReport[startIndex:endIndex]
+
+		// Initialize the sum variables
+		regis, regisDp, ap, trDp, trWd, ttlDp, ttlWd, wl, convDp, convTr, ats, bonus := 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+
+		// Calculate the sum for the current section
+		for _, dt := range sectionData {
+			regis += float64(dt.Regis)
+			regisDp += float64(dt.RegisDp)
+			ap += float64(dt.ActivePlayer)
+			trDp += float64(dt.TransDp)
+			trWd += float64(dt.TransWd)
+			ttlDp += dt.TotalDp
+			ttlWd += dt.TotalWd
+			wl += dt.Wl
+			convDp += dt.ConvDp
+			convTr += dt.ConvTr
+			ats += dt.Ats
+			bonus += dt.Bonus
+		}
+
+		avgData = append(avgData, model.AverageDataReportTransaction{
+			Regis:        regis,
+			RegisDp:      regisDp,
+			ActivePlayer: ap,
+			TransDp:      trDp,
+			TransWd:      trWd,
+			TotalDp:      ttlDp,
+			TotalWd:      ttlWd,
+			Wl:           wl,
+			ConvDp:       convDp,
+			ConvTr:       convTr,
+			Ats:          ats,
+			Bonus:        bonus,
+			Period:       fmt.Sprintf("Total %s Week", week[i]),
+		})
+
+		// Calculate the averages and append to avgData
+		avgData = append(avgData, model.AverageDataReportTransaction{
+			Regis:        regis / divider,
+			RegisDp:      regisDp / divider,
+			ActivePlayer: ap / divider,
+			TransDp:      trDp / divider,
+			TransWd:      trWd / divider,
+			TotalDp:      ttlDp / divider,
+			TotalWd:      ttlWd / divider,
+			Wl:           wl / divider,
+			ConvDp:       convDp / divider,
+			ConvTr:       convTr / divider,
+			Ats:          ats / divider,
+			Bonus:        bonus / divider,
+			Period:       fmt.Sprintf("Avg %s Week", week[i]),
+		})
+
+		// Update the divider for the next section
+		divider = float64(len(sectionData))
+	}
+
+	resp.RespReportTransaction = data
+	resp.DataAverage = avgData
+
+	return resp, nil
 }

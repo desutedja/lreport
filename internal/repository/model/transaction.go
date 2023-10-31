@@ -50,22 +50,27 @@ type DataReportTransaction struct {
 }
 
 type AverageDataReportTransaction struct {
-	Regis        int     `json:"avg_regis"`
-	RegisDp      int     `json:"avg_regis_dp"`
-	ActivePlayer int     `json:"avg_active_player"`
-	TransDp      int     `json:"avg_trans_dp"`
-	TransWd      int     `json:"avg_trans_wd"`
-	TotalDp      float64 `json:"avg_total_dp"`
-	TotalWd      float64 `json:"avg_total_wd"`
-	Wl           float64 `json:"avg_wl"`
-	ConvDp       float64 `json:"avg_conv_dp"`
-	ConvTr       float64 `json:"avg_conv_tr"`
-	Ats          float64 `json:"avg_ats"`
-	Bonus        float64 `json:"avg_bonus"`
+	Regis        float64 `json:"regis"`
+	RegisDp      float64 `json:"regis_dp"`
+	ActivePlayer float64 `json:"active_player"`
+	TransDp      float64 `json:"trans_dp"`
+	TransWd      float64 `json:"trans_wd"`
+	TotalDp      float64 `json:"total_dp"`
+	TotalWd      float64 `json:"total_wd"`
+	Wl           float64 `json:"wl"`
+	ConvDp       float64 `json:"conv_dp"`
+	ConvTr       float64 `json:"conv_tr"`
+	Ats          float64 `json:"ats"`
+	Bonus        float64 `json:"bonus"`
 	Period       string  `json:"period"`
 }
 
 type RespReportTransaction struct {
 	DataReport []DataReportTransaction `json:"data_report"`
 	DataKey    []string                `json:"data_key"`
+}
+
+type RespReportTransactionAvg struct {
+	RespReportTransaction
+	DataAverage []AverageDataReportTransaction `json:"data_average"`
 }

@@ -107,7 +107,7 @@ func (s *TransactionStore) GetTransaction(ctx context.Context, req model.BasicRe
 	return data, nil
 }
 
-func (s *TransactionStore) GetTransactionStatistic(ctx context.Context, categoryId int) (data model.RespReportTransaction, err error) {
+func (s *TransactionStore) GetTransactionStatistic(ctx context.Context, categoryId, year, month int) (data model.RespReportTransaction, err error) {
 	query := `
 		SELECT 
 			regis, regis_dp, active_player, trans_dp, trans_wd, total_dp,
@@ -146,7 +146,7 @@ func (s *TransactionStore) GetTransactionStatistic(ctx context.Context, category
 	rows.Close()
 
 	dataReport := []model.DataReportTransaction{}
-	day := daysInMonth(2023, 10)
+	day := daysInMonth(year, time.Month(month))
 
 	for _, d := range day {
 		dt := model.DataReportTransaction{}
