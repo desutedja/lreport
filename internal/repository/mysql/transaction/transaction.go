@@ -3,8 +3,10 @@ package transaction
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/desutedja/lreport/internal/repository/model"
 	"github.com/google/uuid"
@@ -129,9 +131,7 @@ func (s *TransactionStore) GetTransactionStatistic(ctx context.Context, category
 	}
 
 	for rows.Next() {
-
 		dt := model.DataReportTransaction{}
-
 		if err := rows.Scan(
 			&dt.Regis, &dt.RegisDp, &dt.ActivePlayer, &dt.TransDp, &dt.TransWd,
 			&dt.TotalDp, &dt.TotalWd, &dt.Wl, &dt.ConvDp, &dt.ConvTr, &dt.SubTotal, &dt.Ats,
@@ -143,9 +143,47 @@ func (s *TransactionStore) GetTransactionStatistic(ctx context.Context, category
 
 		data.DataReport = append(data.DataReport, dt)
 	}
+	rows.Close()
+
+	dataReport := []model.DataReportTransaction{}
+	day := daysInMonth(2023, 10)
+
+	for _, d := range day {
+		dt := model.DataReportTransaction{}
+		for _, i := range data.DataReport {
+			if i.Period == d {
+				dt = i
+				break
+			}
+		}
+
+		datetime, err := time.Parse(model.TIME_YYYYMMDD, d)
+		if err != nil {
+			return data, err
+		}
+
+		dt.Period = d
+		dt.Day = datetime.Day()
+		dt.Month = int(datetime.Month())
+		dt.Year = datetime.Year()
+		dataReport = append(dataReport, dt)
+	}
+
+	data.DataReport = dataReport
 
 	dtkey := "regis,regis_dp,active_player,trans_dp,trans_wd,total_dp,total_wd,wl,conv_dp,conv_tr,sub_total,ats,bonus,total"
 	data.DataKey = strings.Split(dtkey, ",")
 
 	return data, nil
+}
+
+func daysInMonth(year int, month time.Month) []string {
+	t := time.Date(year, month, 32, 0, 0, 0, 0, time.UTC)
+	fmt.Println("DAY: ", t)
+	daysInMonth := 32 - t.Day()
+	days := make([]string, daysInMonth)
+	for i := range days {
+		days[i] = time.Date(year, month, i+1, 12, 0, 0, 0, time.UTC).Format(model.TIME_YYYYMMDD)
+	}
+	return days
 }

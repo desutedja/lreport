@@ -8,6 +8,7 @@ const (
 
 	USER_LEVEL_DEFAULT string = "user"
 	CONTEXT_KEY        key    = "userInfo"
+	TIME_YYYYMMDD      string = "2006-01-02"
 )
 
 type RespBody struct {
